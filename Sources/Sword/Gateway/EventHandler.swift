@@ -381,7 +381,12 @@ extension Shard {
         let voiceState = VoiceState(data)
 
         guild.voiceStates[userId] = voiceState
-        guild.members[userId]?.voiceState = voiceState
+        if guild.members[userId] != nil {
+            guild.members[userId]?.voiceState = voiceState
+        } else if let memberData = data["member"] as? [String : Any] {
+            let member = Member(self.sword, guild, memberData)
+            guild.members[member.user.id] = member
+        }
 
         self.sword.emit(.voiceChannelJoin, with: (userId, voiceState))
       }else {
